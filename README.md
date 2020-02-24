@@ -18,8 +18,6 @@ GROUP BY songs.title
 ORDER BY play_count DESC LIMIT 10;
 ```
 
-- Result:
-
 ![result](images/result1.png)
 
 Next, we might want to see how many paid and free users we have:
@@ -31,7 +29,6 @@ GROUP BY level
 ORDER BY level_count DESC;
 ```
 
-- Result:
 ![result](images/result2.png)
 
 We could look at a lot more to optimize business and the app experience.  The fact table (songplays) has data on the user agent (e.g. phone, browser, etc), location, and time when the song was started.  Note that this data was simulated with an [event simulator](https://github.com/Interana/eventsim), but the song data is from the [million song dataset](http://millionsongdataset.com/).
