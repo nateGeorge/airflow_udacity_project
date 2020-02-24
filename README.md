@@ -64,6 +64,8 @@ The first step is running Airflow.  The two best options I've come across thus f
 
 See below for more details on running airflow locally with the docker container.  The file 'other_airflow_options' also discusses running Airflow on Udacity's workspaces and locally.
 
+I took notes on some methods for running/debugging airflow code, and it's in the developing_airflow_code.md file.
+
 ## Running airflow locally with puckel's docker setup
 The github repo with instructions is [here](https://github.com/puckel/docker-airflow).  I used the CeleryExecutor version which allows execution in parallel.
 
@@ -125,13 +127,13 @@ Redshift has a nice feature where it gives an estimated run time.
 
 ## Extra details
 ### Problems with Udacity's project guidelines
-There are several problems with Udacity's project guidelines.  For one, they suggest have retries with 5 minute delays.  This can be good once code is in production mode, but bad for testing and dev.  This leads students to start the project with retries on, which makes debugging nearly impossible.
+There are several problems with Udacity's project guidelines.  For one, they suggest having retries with 5 minute delays.  This can be good once code is in production mode, but bad for testing and dev.  This leads students to starting the project with retries on, which makes debugging impossible.
 
-Second, the songs data is static, so we only need to load it once.  Loading the songs data should be done in the create_all_tables DAG, and not loaded anew with each new day of logs.  To load new song data, we could create folders with the day's date and add songs there.  Then we could have a task in our simply_sparkify_etl DAG which checks for any song folders with the execution_date and updates the songs table accordingly.  The songs data takes about 5 minutes to copy.  So not only are you unnecessarily using compute power, you're also going to be incurring huge S3 charges over time for repeatedly loading the same data over and over.  Not smart.  That's why I redesigned the DAGs to be more efficient.
+Second, the songs data is static, so we only need to load it once.  Loading the songs data should be done in the create_all_tables DAG, and not loaded anew with each new day of songplay logs as Udacity specifies.  To load new song data, we could create folders with the day's date and add songs there.  Then we could have a task in our simply_sparkify_etl DAG which checks for any song folders with the execution_date and updates the songs table accordingly.  The songs data takes about 5 minutes to copy.  So not only are you unnecessarily using compute power, you're also going to be incurring huge S3 charges over time for repeatedly loading the same data over and over.  Not smart.  That's why I redesigned the DAGs to be more efficient.
 
-The log data is daily frequency, but Udacity's specs call for hourly runs of the DAG.  This could make sense if you want to monitor hourly plays, but it doesn't match the frequency of the data and just doesn't seem realistic.
+The log data is daily frequency, but Udacity's specs call for hourly runs of the DAG.  This could make sense if you want to monitor hourly plays, but it doesn't match the frequency of the data and just doesn't seem realistic based on the dataset.
 
-The architecture for the plugins is bonkers.  Udacity mandates that the fact and dimension tables need separate operators, and should be parameterized.  However, fact/dimension tables don't seem easily extensible to me (i.e. not generalizable), so it would be better to just write SQL statements and use PostgresOperator() instead.  This would keep the code simpler and more organized rather than overcomplicated.
+The architecture for the plugins is a bit gonzo.  Udacity mandates that the fact and dimension tables need separate operators, and should be parameterized.  However, fact/dimension tables don't seem easily extensible to me (i.e. not generalizable), so it would be better to just write SQL statements and use PostgresOperator() instead.  This would keep the code simpler and more organized rather than over-complicated.
 
 ### Setting default args in the DAG
 
